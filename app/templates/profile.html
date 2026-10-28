@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% from "macros.html" import err %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+<h1>Профиль</h1>
+<p class="muted">{{ user.email }} · роль: {{ ROLES[user.role] }}</p>
+<form class="panel" method="post" action="/profile" style="max-width:420px">
+  <div class="field {{ 'bad' if errors.display_name }}"><label for="dn">Имя</label><input id="dn" name="display_name" value="{{ user.display_name }}" required>{{ err(errors,'display_name') }}</div>
+  <h3>Смена пароля (необязательно)</h3>
+  <div class="field {{ 'bad' if errors.current_password }}"><label for="cp">Текущий пароль</label><input id="cp" name="current_password" type="password">{{ err(errors,'current_password') }}</div>
+  <div class="field {{ 'bad' if errors.new_password }}"><label for="np">Новый пароль</label><input id="np" name="new_password" type="password">{{ err(errors,'new_password') }}</div>
+  <button class="btn" type="submit">Сохранить</button>
+</form>
+<form class="panel" method="post" action="/profile/delete" style="max-width:420px" data-confirm="Удалить аккаунт? Это действие нельзя отменить.">
+  <h3>Удаление аккаунта</h3><p class="muted small">Вход закроется, объявления уйдут в архив. История заявок у других участников сохранится.</p>
+  <div class="field {{ 'bad' if errors.delete_password }}"><label for="dp">Пароль для подтверждения</label><input id="dp" name="password" type="password" required>{{ err(errors,'delete_password') }}</div>
+  <button class="btn danger" type="submit">Удалить аккаунт</button>
+</form>
+{% endblock %}

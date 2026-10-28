@@ -1,0 +1,27 @@
+{% macro err(errors, name) %}{% if errors and errors.get(name) %}<div class="err-text" role="alert">{{ errors[name] }}</div>{% endif %}{% endmacro %}
+
+{% macro card(l, favs=(), back='/listings', user=None) %}
+<article class="card">
+  <a class="thumb" href="/listings/{{ l.id }}" tabindex="-1">{% if l.images %}<img src="/uploads/{{ l.images[0].file }}" alt="" loading="lazy">{% else %}<div class="noimg">Нет фото</div>{% endif %}</a>
+  <div class="card-body">
+    <div class="badges"><span class="badge">{{ MODES[l.mode] }}</span>{% if l.status != 'published' %}<span class="badge st-{{ l.status }}">{{ LISTING_STATUSES[l.status] }}</span>{% endif %}</div>
+    <h3><a href="/listings/{{ l.id }}">{{ l.title }}</a></h3>
+    <span class="price">{{ l|price_label }}</span>
+    <div class="muted small">{{ l.category.name }}, {{ CONDITIONS[l.condition]|lower }}</div>
+    {% if user %}<form method="post" action="/listings/{{ l.id }}/favorite" class="nolock"><input type="hidden" name="back" value="{{ back }}">
+      <button class="btn alt" type="submit">{{ 'Убрать из избранного' if l.id in favs else 'В избранное' }}</button></form>{% endif %}
+  </div>
+</article>
+{% endmacro %}
+
+{% macro pager(request, page, pages) %}
+{% if pages > 1 %}<nav class="pager" aria-label="Страницы">
+  {% if page > 1 %}<a class="btn alt" href="{{ request.url.include_query_params(page=page-1) }}">Назад</a>{% endif %}
+  <span>Страница {{ page }} из {{ pages }}</span>
+  {% if page < pages %}<a class="btn alt" href="{{ request.url.include_query_params(page=page+1) }}">Вперёд</a>{% endif %}
+</nav>{% endif %}
+{% endmacro %}
+
+{% macro post(action, label, cls='alt', confirm='') %}
+<form method="post" action="{{ action }}" {% if confirm %}data-confirm="{{ confirm }}"{% endif %}><button class="btn {{ cls }}" type="submit">{{ label }}</button></form>
+{% endmacro %}

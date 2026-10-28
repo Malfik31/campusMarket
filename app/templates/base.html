@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}CampusMarket{% endblock %} — CampusMarket</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="logo" href="/listings">CampusMarket</a>
+  <nav>
+    <a href="/listings">Каталог</a>
+    {% if user %}
+      <a href="/listings/new">Подать объявление</a>
+      <a href="/my/listings">Мои объявления</a>
+      <a href="/my/requests">Мои заявки</a>
+      <a href="/favorites">Избранное</a>
+      {% if user.role in ('moderator','admin') %}<a href="/moderation">Модерация</a>{% endif %}
+      {% if user.role == 'admin' %}<a href="/admin/users">Пользователи</a>{% endif %}
+      <a href="/profile">{{ user.display_name }}</a>
+      <form method="post" action="/logout" class="nolock"><button type="submit">Выйти</button></form>
+    {% else %}
+      <a href="/login">Войти</a><a href="/register">Регистрация</a>
+    {% endif %}
+  </nav>
+</div></header>
+<main class="wrap">
+  {% for kind, text in flashes %}<div class="flash {{ kind }}" role="status">{{ text }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+  <p class="muted small">Время показано в поясе {{ TZ_NAME }}. Цены — в сомах.</p>
+</main>
+<script>
+document.addEventListener('submit',function(e){var f=e.target;
+  if(f.dataset.confirm&&!confirm(f.dataset.confirm)){e.preventDefault();return}
+  var b=f.querySelector('button[type=submit],button:not([type])');
+  if(b&&!f.classList.contains('nolock')){setTimeout(function(){b.dataset.t=b.textContent;b.disabled=true;b.textContent='Загрузка…'},0)}});
+document.querySelectorAll('.grid>*').forEach(function(el,i){el.style.setProperty('--i',i)});
+window.addEventListener('pageshow',function(){document.querySelectorAll('button[disabled]').forEach(function(b){b.disabled=false;if(b.dataset.t)b.textContent=b.dataset.t})});
+</script>
+</body></html>

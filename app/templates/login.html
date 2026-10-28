@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% from "macros.html" import err %}
+{% block title %}Вход{% endblock %}
+{% block content %}
+<h1>Вход</h1>
+<form class="panel" method="post" action="/login" style="max-width:420px">
+  {{ err(errors,'form') }}
+  <input type="hidden" name="next" value="{{ next }}">
+  <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" value="{{ values.email }}" required></div>
+  <div class="field"><label for="password">Пароль</label><input id="password" name="password" type="password" required></div>
+  <button class="btn" type="submit">Войти</button> <a href="/register">Создать аккаунт</a>
+</form>
+{% endblock %}

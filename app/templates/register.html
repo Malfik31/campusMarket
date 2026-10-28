@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% from "macros.html" import err %}
+{% block title %}Регистрация{% endblock %}
+{% block content %}
+<h1>Регистрация</h1>
+<form class="panel" method="post" action="/register" style="max-width:420px">
+  <div class="field {{ 'bad' if errors.email }}"><label for="email">Email</label><input id="email" name="email" type="email" value="{{ values.email }}" required>{{ err(errors,'email') }}</div>
+  <div class="field {{ 'bad' if errors.display_name }}"><label for="dn">Имя в объявлениях</label><input id="dn" name="display_name" value="{{ values.display_name }}" required>{{ err(errors,'display_name') }}</div>
+  <div class="field {{ 'bad' if errors.password }}"><label for="pw">Пароль (от 8 символов)</label><input id="pw" name="password" type="password" required>{{ err(errors,'password') }}</div>
+  <div class="field {{ 'bad' if errors.password2 }}"><label for="pw2">Повторите пароль</label><input id="pw2" name="password2" type="password" required>{{ err(errors,'password2') }}</div>
+  <button class="btn" type="submit">Зарегистрироваться</button> <a href="/login">Уже есть аккаунт</a>
+</form>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Пользователи{% endblock %}
+{% block content %}
+<h1>Пользователи и роли</h1>
+<div class="panel tablewrap"><table>
+<tr><th>Имя</th><th>Email</th><th>Роль</th><th></th></tr>
+{% for u in users %}<tr><td>{{ u.display_name }}{% if not u.is_active %} <span class="badge">удалён</span>{% endif %}</td><td>{{ u.email }}</td><td>{{ ROLES[u.role] }}</td>
+<td>{% if u.id != user.id and u.is_active %}<form method="post" action="/admin/users/{{ u.id }}/role" class="row">
+  <select name="role" aria-label="Роль">{% for k, v in ROLES.items() %}<option value="{{ k }}" {{ 'selected' if u.role == k }}>{{ v }}</option>{% endfor %}</select>
+  <button class="btn alt" type="submit">Сохранить</button></form>{% endif %}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% from "macros.html" import post %}
+{% block title %}Мои объявления{% endblock %}
+{% block content %}
+<h1>Мои объявления</h1>
+{% for l in items %}
+<section class="panel">
+  <div class="row"><h3 style="margin-right:auto"><a href="/listings/{{ l.id }}">{{ l.title }}</a></h3>
+    <span class="badge st-{{ l.status }}">{{ LISTING_STATUSES[l.status] }}</span><span class="price">{{ l|price_label }}</span></div>
+  {% if l.status == 'hidden' %}<p class="err-text">Скрыто модератором: {{ l.hide_reason }}</p>{% endif %}
+  <div class="row">
+    {% if l.status not in ('completed','hidden') %}<a class="btn alt" href="/listings/{{ l.id }}/edit">Редактировать</a>{% endif %}
+    {% if l.status == 'published' %}{{ post('/listings/' ~ l.id ~ '/archive', 'Снять с публикации', 'alt', 'Снять объявление с публикации? Ожидающие заявки будут отклонены.') }}{% endif %}
+    {% if l.status == 'archived' %}{{ post('/listings/' ~ l.id ~ '/restore', 'Опубликовать снова') }}{% endif %}
+    {% if l.status == 'reserved' %}{{ post('/listings/' ~ l.id ~ '/complete', 'Отметить «передано»', 'btn', 'Подтвердить передачу? Остальные заявки будут отклонены.') }}
+      {{ post('/listings/' ~ l.id ~ '/release', 'Снять резерв', 'alt', 'Снять резерв? Принятая заявка будет отклонена.') }}{% endif %}
+  </div>
+  <h3 style="margin-top:14px">Заявки ({{ l.requests|length }})</h3>
+  {% if l.requests %}<div class="tablewrap"><table>
+    <tr><th>Покупатель</th><th>Сообщение</th><th>Статус</th><th>Действия</th></tr>
+    {% for r in l.requests %}<tr><td>{{ r.buyer.display_name }}<div class="muted small">{{ r.created_at|localtime }}</div></td>
+      <td class="pre">{{ r.text }}</td><td><span class="badge st-{{ r.status }}">{{ REQUEST_STATUSES[r.status] }}</span></td>
+      <td><div class="row"><a href="/requests/{{ r.id }}/messages">Переписка</a>
+        {% if r.status == 'pending' %}
+          {% if l.status == 'published' %}{{ post('/requests/' ~ r.id ~ '/accept', 'Выбрать получателем', 'btn', 'Выбрать этого покупателя и зарезервировать вещь?') }}{% endif %}
+          {{ post('/requests/' ~ r.id ~ '/reject', 'Отклонить', 'alt', 'Отклонить заявку?') }}{% endif %}</div></td></tr>{% endfor %}
+  </table></div>{% else %}<p class="muted">Заявок пока нет.</p>{% endif %}
+</section>
+{% else %}
+<div class="panel empty"><p>У вас пока нет объявлений.</p><a class="btn" href="/listings/new">Подать первое объявление</a></div>
+{% endfor %}
+{% endblock %}

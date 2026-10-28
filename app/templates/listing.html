@@ -1,0 +1,42 @@
+{% extends "base.html" %}{% from "macros.html" import post %}
+{% block title %}{{ l.title }}{% endblock %}
+{% block content %}
+<div class="detail">
+  <section class="gallery">
+    {% if l.images %}
+      <img class="main" id="main-img" src="/uploads/{{ l.images[0].file }}" alt="{{ l.title }}">
+      {% if l.images|length > 1 %}<div class="thumbs">{% for i in l.images %}<img src="/uploads/{{ i.file }}" alt="Фото {{ loop.index }}" onclick="document.getElementById('main-img').src=this.src">{% endfor %}</div>{% endif %}
+    {% else %}<div class="panel empty">У объявления нет фотографий</div>{% endif %}
+  </section>
+  <section>
+    <div class="badges"><span class="badge">{{ MODES[l.mode] }}</span><span class="badge st-{{ l.status }}">{{ LISTING_STATUSES[l.status] }}</span></div>
+    <h1>{{ l.title }}</h1>
+    <span class="price">{{ l|price_label }}</span>
+    <p class="muted">{{ l.category.name }}, состояние: {{ CONDITIONS[l.condition]|lower }}<br>Автор: {{ l.seller.display_name }}<br>Опубликовано: {{ l.created_at|localtime }}</p>
+    {% if l.status == 'hidden' and (mine or staff) %}<div class="flash err">Скрыто модератором. Причина: {{ l.hide_reason }}</div>{% endif %}
+    <p class="pre">{{ l.description }}</p>
+
+    {% if mine %}
+      <div class="row"><a class="btn" href="/my/listings">Мои объявления</a>{% if l.status not in ('completed','hidden') %}<a class="btn alt" href="/listings/{{ l.id }}/edit">Редактировать</a>{% endif %}</div>
+    {% elif user %}
+      <div class="row">
+        <form method="post" action="/listings/{{ l.id }}/favorite" class="nolock"><input type="hidden" name="back" value="/listings/{{ l.id }}">
+          <button class="btn alt" type="submit">{{ 'Убрать из избранного' if is_fav else 'В избранное' }}</button></form>
+      </div>
+      {% if my_req and my_req.status in ('pending','accepted') %}
+        <div class="panel"><p>Ваша заявка: <b>{{ REQUEST_STATUSES[my_req.status] }}</b></p><a class="btn" href="/requests/{{ my_req.id }}/messages">Открыть переписку</a></div>
+      {% elif l.status == 'published' %}
+        <form class="panel" method="post" action="/listings/{{ l.id }}/requests">
+          <div class="field"><label for="text">Сообщение продавцу</label><textarea id="text" name="text" maxlength="1000" required placeholder="Когда и где удобно забрать?"></textarea></div>
+          <button class="btn" type="submit">Подать заявку</button></form>
+      {% else %}<p class="muted">Сейчас заявки на это объявление не принимаются.</p>{% endif %}
+      <details class="panel"><summary>Пожаловаться</summary>
+        <form method="post" action="/reports"><input type="hidden" name="listing_id" value="{{ l.id }}">
+          <div class="field"><label for="reason">Причина жалобы</label><textarea id="reason" name="reason" maxlength="500" required></textarea></div>
+          <button class="btn alt" type="submit">Отправить жалобу</button></form></details>
+    {% else %}
+      <div class="panel"><p><a href="/login?next=/listings/{{ l.id }}">Войдите</a> или <a href="/register">зарегистрируйтесь</a>, чтобы подать заявку или сохранить объявление.</p></div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

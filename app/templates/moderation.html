@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Модерация{% endblock %}
+{% block content %}
+<h1>Жалобы</h1>
+{% for rep in reports %}
+<section class="panel">
+  <h3><a href="/listings/{{ rep.listing_id }}">{{ rep.listing.title }}</a> <span class="badge st-{{ rep.listing.status }}">{{ LISTING_STATUSES[rep.listing.status] }}</span></h3>
+  <p class="pre">{{ rep.reason }}</p><p class="muted small">От {{ rep.reporter.display_name }}, {{ rep.created_at|localtime }}</p>
+  <div class="row">
+    <form method="post" action="/moderation/reports/{{ rep.id }}/hide" class="row"><input name="reason" placeholder="Причина скрытия" required minlength="5" maxlength="500" style="width:260px">
+      <button class="btn danger" type="submit">Скрыть объявление</button></form>
+    <form method="post" action="/moderation/reports/{{ rep.id }}/dismiss" class="row"><input name="comment" placeholder="Комментарий (необязательно)" style="width:240px">
+      <button class="btn alt" type="submit">Отклонить жалобу</button></form>
+  </div>
+</section>
+{% else %}<div class="panel empty">Открытых жалоб нет.</div>{% endfor %}
+
+<h2>Скрытые объявления</h2>
+{% for l in hidden %}<div class="panel row"><a href="/listings/{{ l.id }}" style="margin-right:auto">{{ l.title }}</a><span class="muted small">{{ l.hide_reason }}</span>
+  <form method="post" action="/moderation/listings/{{ l.id }}/restore" data-confirm="Вернуть объявление в каталог?"><button class="btn alt" type="submit">Вернуть</button></form></div>
+{% else %}<p class="muted">Скрытых объявлений нет.</p>{% endfor %}
+
+<h2>Последние решения</h2>
+{% for rep in done %}<p class="small"><a href="/listings/{{ rep.listing_id }}">{{ rep.listing.title }}</a>: {{ rep.resolution }}</p>{% else %}<p class="muted">Пока нет.</p>{% endfor %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% from "macros.html" import post %}
+{% block title %}Мои заявки{% endblock %}
+{% block content %}
+<h1>Мои заявки</h1>
+{% for r in items %}
+<section class="panel">
+  <div class="row"><h3 style="margin-right:auto"><a href="/listings/{{ r.listing_id }}">{{ r.listing.title }}</a></h3>
+    <span class="badge st-{{ r.status }}">{{ REQUEST_STATUSES[r.status] }}</span></div>
+  <p class="pre">{{ r.text }}</p><p class="muted small">Отправлена {{ r.created_at|localtime }}</p>
+  <div class="row"><a class="btn" href="/requests/{{ r.id }}/messages">Переписка</a>
+    {% if r.status in ('pending','accepted') %}{{ post('/requests/' ~ r.id ~ '/cancel', 'Отменить заявку', 'alt', 'Отменить заявку?') }}{% endif %}</div>
+</section>
+{% else %}<div class="panel empty"><p>Вы ещё не подавали заявок.</p><a class="btn" href="/listings">Найти вещь в каталоге</a></div>{% endfor %}
+{% endblock %}

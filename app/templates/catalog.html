@@ -1,0 +1,34 @@
+{% extends "base.html" %}{% from "macros.html" import card, pager %}
+{% block title %}Каталог{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Вещи, которые студенты передают друг другу</h1>
+  <p>Учебники, техника и мебель — купите, обменяйте или заберите даром у однокурсников.</p>
+  <div class="tags" aria-hidden="true"><span>Даром</span><span>Обмен</span><span>450 сом</span></div>
+</section>
+<h2>Каталог объявлений</h2>
+<form class="panel filters" method="get" action="/listings">
+  <div><label for="q">Поиск</label><input id="q" name="q" value="{{ f.q }}" placeholder="Название или описание"></div>
+  <div><label for="category">Категория</label><select id="category" name="category"><option value="">Все</option>
+    {% for c in categories %}<option value="{{ c.id }}" {{ 'selected' if f.category == c.id|string }}>{{ c.name }}</option>{% endfor %}</select></div>
+  <div><label for="mode">Режим</label><select id="mode" name="mode"><option value="">Любой</option>
+    {% for k, v in MODES.items() %}<option value="{{ k }}" {{ 'selected' if f.mode == k }}>{{ v }}</option>{% endfor %}</select></div>
+  <div><label for="condition">Состояние</label><select id="condition" name="condition"><option value="">Любое</option>
+    {% for k, v in CONDITIONS.items() %}<option value="{{ k }}" {{ 'selected' if f.condition == k }}>{{ v }}</option>{% endfor %}</select></div>
+  <div><label for="price_min">Цена от, сом</label><input id="price_min" name="price_min" inputmode="decimal" value="{{ f.price_min }}"></div>
+  <div><label for="price_max">Цена до, сом</label><input id="price_max" name="price_max" inputmode="decimal" value="{{ f.price_max }}"></div>
+  <div><label for="sort">Сортировка</label><select id="sort" name="sort">
+    {% for k, v in [('new','Сначала новые'),('old','Сначала старые'),('price_asc','Цена по возрастанию'),('price_desc','Цена по убыванию')] %}
+    <option value="{{ k }}" {{ 'selected' if f.sort == k }}>{{ v }}</option>{% endfor %}</select></div>
+  <div class="row"><button class="btn" type="submit">Найти</button><a class="btn alt" href="/listings">Сбросить</a></div>
+</form>
+{% for n in notes %}<div class="flash err">{{ n }}</div>{% endfor %}
+<p class="muted">Найдено: {{ total }}</p>
+{% if items %}
+<div class="grid">{% for l in items %}{{ card(l, favs, request.url.path ~ '?' ~ request.url.query if request.url.query else request.url.path, user) }}{% endfor %}</div>
+{{ pager(request, page, pages) }}
+{% else %}
+<div class="panel empty"><p>Ничего не найдено. Измените фильтры или добавьте своё объявление.</p>
+  <a class="btn" href="{{ '/listings/new' if user else '/register' }}">{{ 'Подать объявление' if user else 'Зарегистрироваться' }}</a></div>
+{% endif %}
+{% endblock %}

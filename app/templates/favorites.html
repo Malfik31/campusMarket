@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% from "macros.html" import card %}
+{% block title %}Избранное{% endblock %}
+{% block content %}
+<h1>Избранное</h1>
+{% if items %}<div class="grid">{% for l in items %}{{ card(l, favs, '/favorites', user) }}{% endfor %}</div>
+{% else %}<div class="panel empty"><p>Здесь пока пусто. Нажмите «В избранное» на карточке, чтобы сохранить объявление.</p><a class="btn" href="/listings">В каталог</a></div>{% endif %}
+{% endblock %}

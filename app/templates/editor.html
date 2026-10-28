@@ -1,0 +1,32 @@
+{% extends "base.html" %}{% from "macros.html" import err %}
+{% block title %}{{ 'Редактирование' if listing else 'Новое объявление' }}{% endblock %}
+{% block content %}
+<h1>{{ 'Редактирование объявления' if listing else 'Новое объявление' }}</h1>
+{% if locked %}<div class="flash">Вещь в резерве: цену и режим менять нельзя.</div>{% endif %}
+<form class="panel" method="post" enctype="multipart/form-data" action="{{ '/listings/' ~ listing.id ~ '/edit' if listing else '/listings' }}">
+  <div class="field {{ 'bad' if errors.title }}"><label for="title">Заголовок</label><input id="title" name="title" maxlength="120" value="{{ values.title }}">{{ err(errors,'title') }}</div>
+  <div class="field {{ 'bad' if errors.description }}"><label for="description">Описание</label><textarea id="description" name="description">{{ values.description }}</textarea>{{ err(errors,'description') }}</div>
+  <div class="field {{ 'bad' if errors.category_id }}"><label for="category_id">Категория</label><select id="category_id" name="category_id"><option value="">Выберите…</option>
+    {% for c in categories %}<option value="{{ c.id }}" {{ 'selected' if values.category_id|string == c.id|string }}>{{ c.name }}</option>{% endfor %}</select>{{ err(errors,'category_id') }}</div>
+  <div class="field {{ 'bad' if errors.condition }}"><label for="condition">Состояние</label><select id="condition" name="condition">
+    {% for k, v in CONDITIONS.items() %}<option value="{{ k }}" {{ 'selected' if values.condition == k }}>{{ v }}</option>{% endfor %}</select>{{ err(errors,'condition') }}</div>
+  <div class="field {{ 'bad' if errors.mode }}"><label for="mode">Режим</label><select id="mode" name="mode" {{ 'disabled' if locked }}>
+    {% for k, v in MODES.items() %}<option value="{{ k }}" {{ 'selected' if values.mode == k }}>{{ v }}</option>{% endfor %}</select>{{ err(errors,'mode') }}</div>
+  <div class="field {{ 'bad' if errors.price }}"><label for="price">Цена, сом</label><input id="price" name="price" inputmode="decimal" value="{{ values.price }}" {{ 'disabled' if locked }}>{{ err(errors,'price') }}</div>
+
+  {% if listing and listing.images %}
+  <div class="field"><label>Текущие фото (отметьте, чтобы удалить)</label><div class="imgs-edit">
+    {% for i in listing.images %}<label><img src="/uploads/{{ i.file }}" alt=""><input type="checkbox" name="delete_images" value="{{ i.id }}"> Удалить</label>{% endfor %}</div></div>
+  {% endif %}
+  <div class="field {{ 'bad' if errors.images }}"><label for="images">Фотографии (до {{ max_images }}, JPEG/PNG/WebP/GIF, до 5 МБ каждая)</label>
+    <input id="images" name="images" type="file" accept="image/*" multiple>{{ err(errors,'images') }}</div>
+  <div class="row"><button class="btn" type="submit">{{ 'Сохранить' if listing else 'Опубликовать' }}</button>
+    <a class="btn alt" href="{{ '/listings/' ~ listing.id if listing else '/listings' }}">Отмена</a></div>
+</form>
+<script>
+(function(){var m=document.getElementById('mode'),p=document.getElementById('price');
+ if(!m||m.disabled)return;
+ function sync(){if(m.value==='sale'){p.disabled=false}else{p.disabled=true;p.value=m.value==='gift'?'0':''}}
+ m.addEventListener('change',sync);sync();})();
+</script>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% from "macros.html" import err %}
+{% block title %}Переписка{% endblock %}
+{% block content %}
+<h1>Переписка по заявке</h1>
+<p><a href="/listings/{{ l.id }}">{{ l.title }}</a> · <span class="badge st-{{ r.status }}">{{ REQUEST_STATUSES[r.status] }}</span></p>
+<div class="panel">
+  <div class="msg {{ 'me' if r.buyer_id == user.id }}"><div class="who">{{ r.buyer.display_name }}, заявка · {{ r.created_at|localtime }}</div><div class="pre">{{ r.text }}</div></div>
+  {% for m in messages %}<div class="msg {{ 'me' if m.sender_id == user.id }}"><div class="who">{{ m.sender.display_name }} · {{ m.created_at|localtime }}</div><div class="pre">{{ m.text }}</div></div>{% endfor %}
+  {% if not messages %}<p class="muted">Сообщений пока нет. Договоритесь о времени и месте передачи.</p>{% endif %}
+</div>
+{% if can_write %}
+<form class="panel" method="post" action="/requests/{{ r.id }}/messages">
+  <div class="field {{ 'bad' if error }}"><label for="text">Новое сообщение</label><textarea id="text" name="text" maxlength="2000" required></textarea>
+    {% if error %}<div class="err-text" role="alert">{{ error }}</div>{% endif %}</div>
+  <button class="btn" type="submit">Отправить</button> <a class="btn alt" href="/requests/{{ r.id }}/messages">Обновить</a>
+</form>
+{% else %}<p class="muted">Заявка закрыта, писать в неё нельзя.</p>{% endif %}
+{% endblock %}
