@@ -15,6 +15,11 @@ from .routers import auth, listings, staff
 from .services import AppError
 from .web import render
 
+from app.db import engine
+from app.models import Base # поправьте импорт под свой проект
+from app import models                  # важно: импортировать модели, иначе Base о них не узнает
+
+Base.metadata.create_all(bind=engine)
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app = FastAPI(title="CampusMarket", docs_url=None, redoc_url=None)
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY, same_site="lax", max_age=14 * 24 * 3600)
